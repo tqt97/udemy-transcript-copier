@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transcript Copier Diagnostics</title>
+  <link rel="stylesheet" href="diagnostics.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <img src="icons/icon48.png" alt="">
+      <div><span class="eyebrow">UDemy Transcript Copier</span><h1>Selector diagnostics</h1><p>Inspect what the extension can see when Udemy changes its interface.</p></div>
+      <div class="actions"><button id="refreshBtn" class="secondary">Refresh</button><button id="copyBtn" class="primary">Copy report</button></div>
+    </header>
+    <div id="notice" class="notice">Open a Udemy course tab, then refresh this report.</div>
+
+    <section class="grid">
+      <article class="card span-2"><h2>Course identity</h2><dl id="identity"></dl></article>
+      <article class="card"><h2>Export state</h2><dl id="state"></dl></article>
+      <article class="card"><h2>Languages</h2><div id="languages" class="chips"></div></article>
+    </section>
+
+    <section class="card"><h2>Critical selectors</h2><div id="selectors" class="selector-grid"></div></section>
+    <section class="card"><h2>Observed data-purpose attributes</h2><p class="help">Counts help identify replacements when a selector no longer matches.</p><div id="purposes" class="purpose-list"></div></section>
+    <details class="card"><summary>Raw diagnostic JSON</summary><pre id="raw"></pre></details>
+  </main>
+  <script src="diagnostics.js"></script>
+</body>
+</html>

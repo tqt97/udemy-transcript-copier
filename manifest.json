@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Udemy Transcript Copier",
+  "version": "3.1.2",
+  "description": "Copy, search and export Udemy transcripts by lesson or section.",
+  "author": "tuantq (@tqt97)",
+  "homepage_url": "https://github.com/tqt97",
+  "permissions": ["activeTab", "clipboardWrite", "contextMenus", "storage", "unlimitedStorage", "alarms"],
+  "host_permissions": ["https://udemy.com/*", "https://*.udemy.com/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Udemy Transcript Copier",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "diagnostics.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "increase-playback-speed": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Period",
+        "mac": "Command+Shift+Period"
+      },
+      "description": "Increase Udemy playback speed"
+    },
+    "decrease-playback-speed": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Comma",
+        "mac": "Command+Shift+Comma"
+      },
+      "description": "Decrease Udemy playback speed"
+    },
+    "reset-playback-speed": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+0",
+        "mac": "Command+Shift+0"
+      },
+      "description": "Reset Udemy playback speed to 1x"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://udemy.com/*", "https://*.udemy.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

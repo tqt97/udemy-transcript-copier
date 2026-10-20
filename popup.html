@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Udemy Transcript Copier</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <img class="app-icon" src="icons/icon48.png" alt="">
+      <div class="header-copy">
+        <h1>Transcript Copier</h1>
+        <p data-i18n="subtitle">Xuất transcript khóa học</p>
+      </div>
+      <select id="uiLanguage" class="language-switch" aria-label="Ngôn ngữ giao diện">
+        <option value="vi">VI</option><option value="en">EN</option>
+      </select>
+      <button id="diagnosticsBtn" class="icon-button" data-i18n-title="diagnostics" title="Chẩn đoán" aria-label="Chẩn đoán">⚙</button>
+    </header>
+
+    <div id="status" class="status" role="status" aria-live="polite" data-i18n="openLesson">Hãy mở một bài học Udemy.</div>
+
+    <section class="panel setup-panel">
+      <div class="panel-heading">
+        <div><span class="eyebrow" data-i18n="exportLabel">XUẤT</span><h2 data-i18n="courseTranscripts">Transcript khóa học</h2></div>
+        <button id="refreshBtn" class="text-button" type="button" data-i18n="refresh">Làm mới</button>
+      </div>
+
+      <div class="field">
+        <label for="scopeMode" data-i18n="scope">Phạm vi</label>
+        <select id="scopeMode" disabled>
+          <option value="all" data-i18n="entireCourse">Toàn khóa học</option>
+          <option value="sections" data-i18n="selectedSections">Các section đã chọn</option>
+          <option value="range" data-i18n="lessonRange">Khoảng bài học</option>
+        </select>
+      </div>
+
+      <div id="sectionsField" class="field hidden">
+        <div class="label-row">
+          <label for="sectionsSelect" data-i18n="sections">Sections</label>
+          <span class="mini-actions"><button id="selectAllSections" type="button" data-i18n="all">Tất cả</button><button id="clearSections" type="button" data-i18n="none">Bỏ chọn</button></span>
+        </div>
+        <select id="sectionsSelect" class="multi-select" multiple size="5"></select>
+      </div>
+
+      <div id="rangeField" class="field hidden">
+        <label data-i18n="lessonRange">Khoảng bài học</label>
+        <div class="range-grid">
+          <input id="rangeFrom" type="number" min="1" value="1" aria-label="First lesson">
+          <span data-i18n="to">đến</span>
+          <input id="rangeTo" type="number" min="1" value="1" aria-label="Last lesson">
+        </div>
+      </div>
+
+      <div class="two-column">
+        <div class="field">
+          <label for="languageSelect" data-i18n="transcriptLanguage">Ngôn ngữ transcript</label>
+          <select id="languageSelect"><option value="auto" data-i18n="autoCurrent">Tự động / hiện tại</option></select>
+        </div>
+        <div class="field">
+          <label for="formatSelect" data-i18n="fileFormat">Định dạng</label>
+          <select id="formatSelect">
+            <option value="markdown">Markdown</option>
+            <option value="text" data-i18n="plainText">Văn bản</option>
+            <option value="json">JSON</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field compact-field">
+        <label for="layoutSelect" data-i18n="organization">Cách tổ chức file</label>
+        <select id="layoutSelect">
+          <option value="lesson-zip" data-i18n="perLesson">Mỗi bài một file (.zip)</option>
+          <option value="section-zip" data-i18n="perSection">Mỗi section một file (.zip)</option>
+          <option value="single" data-i18n="singleFile">Một file tổng hợp</option>
+        </select>
+      </div>
+
+      <details class="advanced-options">
+        <summary data-i18n="advanced">Tùy chọn nâng cao</summary>
+        <div class="option-list">
+          <label class="check-option"><input id="timestampsCheck" type="checkbox"> <span data-i18n="timestamps">Kèm timestamp</span></label>
+          <label class="check-option"><input id="normalizeCheck" type="checkbox"> <span data-i18n="normalize">Chuẩn hóa và loại filler</span></label>
+          <label class="check-option"><input id="tocCheck" type="checkbox" checked> <span data-i18n="toc">Mục lục Markdown</span></label>
+        </div>
+      </details>
+
+      <button id="startBtn" class="button primary" disabled data-i18n="start">Bắt đầu xuất</button>
+    </section>
+
+    <section id="progressArea" class="panel hidden">
+      <div class="panel-heading compact">
+        <div><span class="eyebrow" data-i18n="progressLabel">TIẾN ĐỘ</span><h2 id="progressText">0/0 bài</h2></div>
+        <strong id="progressPercent" class="percent">0%</strong>
+      </div>
+      <progress id="progressBar" value="0" max="1"></progress>
+      <div class="progress-meta">
+        <span id="etaText" data-i18n="estimating">Đang ước tính…</span>
+        <span id="watchdogText"></span>
+      </div>
+      <p id="currentLesson" class="current-lesson"></p>
+      <div class="button-row">
+        <button id="pauseBtn" class="button secondary" data-i18n="pause">Tạm dừng</button>
+        <button id="resumeBtn" class="button secondary hidden" data-i18n="resume">Tiếp tục</button>
+        <button id="exportBtn" class="button primary" disabled data-i18n="download">Tải xuống</button>
+      </div>
+      <div class="progress-footer"><p class="autosave-note"><span class="save-dot"></span><span data-i18n="autosaved">Tự lưu sau mỗi bài</span></p><button id="resetBtn" class="text-button danger-text" data-i18n="reset">Xóa tiến trình</button></div>
+    </section>
+
+    <section id="failedArea" class="panel hidden">
+      <div class="panel-heading compact">
+        <div><span class="eyebrow danger" data-i18n="attention">CẦN XỬ LÝ</span><h2 id="failedHeading">Bài bị bỏ qua</h2></div>
+        <button id="retryFailedBtn" class="text-button danger-text" data-i18n="retry">Thử lại</button>
+      </div>
+      <ul id="failedList" class="result-list failed-list"></ul>
+    </section>
+
+    <section id="searchArea" class="panel hidden">
+      <div class="panel-heading compact"><div><span class="eyebrow" data-i18n="searchLabel">TÌM KIẾM</span><h2 data-i18n="collected">Transcript đã thu thập</h2></div></div>
+      <input id="searchInput" class="search-input" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Tìm tiêu đề và nội dung…">
+      <div id="searchSummary" class="microcopy search-summary"></div>
+      <ul id="searchResults" class="result-list search-results"></ul>
+    </section>
+
+    <details class="panel current-panel">
+      <summary data-i18n="currentTools">Công cụ cho bài hiện tại</summary>
+      <div class="meta"><span id="cueCount">0 segments</span><span id="charCount">0 characters</span></div>
+      <div class="button-row">
+        <button id="copyBtn" class="button secondary" data-i18n="copy">Sao chép transcript</button>
+        <button id="downloadBtn" class="button secondary" disabled data-i18n="saveTxt">Lưu .txt</button>
+      </div>
+    </details>
+    <footer><span>tuantq</span><a href="https://github.com/tqt97" target="_blank" rel="noreferrer">@tqt97</a><span>v1.0.0</span></footer>
+  </main>
+  <script src="export-utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
